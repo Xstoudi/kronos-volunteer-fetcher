@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/kronos-volunteer-fetcher/precache-manifest.b78dbd6ff2b29f53bc782ae0aaf4f103.js"
+  "/kronos-volunteer-fetcher/precache-manifest.c018d48c58b68ea7f26da2370b14d218.js"
 );
 
 self.addEventListener('message', (event) => {

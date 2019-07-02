@@ -1,19 +1,15 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "d3a898dc7a3f1df35fabf668f39b4485",
+    "revision": "583762f1483960846a286b21b3c2041e",
     "url": "/kronos-volunteer-fetcher/index.html"
-  },
-  {
-    "revision": "39901383d90cc11a0a24",
-    "url": "/kronos-volunteer-fetcher/static/css/main.2cce8147.chunk.css"
   },
   {
     "revision": "2e0129063922e3bb197a",
     "url": "/kronos-volunteer-fetcher/static/js/2.b41502e9.chunk.js"
   },
   {
-    "revision": "39901383d90cc11a0a24",
-    "url": "/kronos-volunteer-fetcher/static/js/main.efaedd18.chunk.js"
+    "revision": "1f2da4baaae5091464f4",
+    "url": "/kronos-volunteer-fetcher/static/js/main.547d8492.chunk.js"
   },
   {
     "revision": "a211d91257836207f8d1",
