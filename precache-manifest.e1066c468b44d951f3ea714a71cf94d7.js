@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "b9cf4b35791be41c1075a2f53969c344",
+    "revision": "a2892cab383a8fc979f5a7a0241f313f",
     "url": "/kronos-volunteer-fetcher/index.html"
   },
   {
