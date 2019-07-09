@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "04de06604558781cfd73b244b3f3a515",
+    "revision": "94d0931ac1cf71ffef4d6870d813e360",
     "url": "/kronos-volunteer-fetcher/index.html"
   },
   {
@@ -12,8 +12,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/kronos-volunteer-fetcher/static/js/2.1d1b2c1c.chunk.js"
   },
   {
-    "revision": "9a43d3e7589f04444109",
-    "url": "/kronos-volunteer-fetcher/static/js/main.b24141c6.chunk.js"
+    "revision": "2c13a2f7dabea0020d51",
+    "url": "/kronos-volunteer-fetcher/static/js/main.8a05ee68.chunk.js"
   },
   {
     "revision": "a211d91257836207f8d1",
