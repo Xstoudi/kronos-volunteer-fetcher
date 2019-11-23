@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.js": "/kronos-volunteer-fetcher/static/js/main.8a05ee68.chunk.js",
-    "main.js.map": "/kronos-volunteer-fetcher/static/js/main.8a05ee68.chunk.js.map",
+    "main.js": "/kronos-volunteer-fetcher/static/js/main.ed2c5e21.chunk.js",
+    "main.js.map": "/kronos-volunteer-fetcher/static/js/main.ed2c5e21.chunk.js.map",
     "runtime~main.js": "/kronos-volunteer-fetcher/static/js/runtime~main.5e5f3718.js",
     "runtime~main.js.map": "/kronos-volunteer-fetcher/static/js/runtime~main.5e5f3718.js.map",
     "static/css/2.a5840290.chunk.css": "/kronos-volunteer-fetcher/static/css/2.a5840290.chunk.css",
-    "static/js/2.1d1b2c1c.chunk.js": "/kronos-volunteer-fetcher/static/js/2.1d1b2c1c.chunk.js",
-    "static/js/2.1d1b2c1c.chunk.js.map": "/kronos-volunteer-fetcher/static/js/2.1d1b2c1c.chunk.js.map",
+    "static/js/2.e124f099.chunk.js": "/kronos-volunteer-fetcher/static/js/2.e124f099.chunk.js",
+    "static/js/2.e124f099.chunk.js.map": "/kronos-volunteer-fetcher/static/js/2.e124f099.chunk.js.map",
     "index.html": "/kronos-volunteer-fetcher/index.html",
-    "precache-manifest.6515079cff6c80ad5e7a4556978b1860.js": "/kronos-volunteer-fetcher/precache-manifest.6515079cff6c80ad5e7a4556978b1860.js",
+    "precache-manifest.bae4760bfd8ae2a1dd7894dc7755fc2a.js": "/kronos-volunteer-fetcher/precache-manifest.bae4760bfd8ae2a1dd7894dc7755fc2a.js",
     "service-worker.js": "/kronos-volunteer-fetcher/service-worker.js",
     "static/css/2.a5840290.chunk.css.map": "/kronos-volunteer-fetcher/static/css/2.a5840290.chunk.css.map"
   }
