@@ -29,7 +29,8 @@ export default class App extends React.Component {
       kronosEmail: '',
       kronosPassword: '',
       month: null,
-      datas: [],
+      participeData: [],
+      logData: new Map(),
       sums: {
         proj: 0,
         acc: 0,
@@ -37,9 +38,10 @@ export default class App extends React.Component {
         projreg: 0
       },
       loadingConnect: false,
-      loadingWorks: false,
+      loadingDatas: false,
       connectError: null,
-      fetchError: null
+      fetchError: null,
+      datasToFetch: 'participe'
     }
   }
 
@@ -93,97 +95,147 @@ export default class App extends React.Component {
   handleChangeMonth(month) {
     this.setState({
       ...this.state,
+      step: 2,
       month
     })
   }
 
-  fetchTasks () {
+  datasToFetchChange(event) {
+    this.setState({...this.state, datasToFetch: event.currentTarget.value})
+  }
+
+  fetchDatas () {
     const startDate = moment(this.state.month)
     const endDate = moment(this.state.month).endOf('month')
     this.setState({
       ...this.state,
-      loadingWorks: true,
+      loadingDatas: true,
       fetchError: null
-    }, () => 
-      fetch(`https://api-kronos.ticketack.com/task/list?start_at_gte=${startDate.format("YY-MM-DDTHH:mm:ssZ").replace('+', '%2B')}&start_at_lte=${endDate.format("YYYY-MM-DDTHH:mm:ssZ").replace('+', '%2B')}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Referer': 'https://kronos.ticketack.com/',
-          'X-API-Key': this.state.apiKey
-        }
-      }).then(response => response.json())
-        .then(data => {
-          if(data.flash.error){
-            this.setState({
-              ...this.state,
-              fetchError: data.flash.error
-            })
-          } else {
-            const { tasks } = data
-            const volunteers = new Set()
-            tasks.forEach(task => {
-              if(task.user)
-                volunteers.add(`${task.user.firstname} ${task.user.lastname}`)
-            })
-
-            const datas = []
-            const sums = {
-              proj: 0,
-              acc: 0,
-              playlist: 0,
-              projreg: 0
-            }
-
-            volunteers.forEach(volunteer => {
-              const [firstname, ...lastname] = volunteer.split(' ')
-              const works = {
+    }, () => {
+      if(this.state.datasToFetch === 'participe'){
+        fetch(`https://api-kronos.ticketack.com/task/list?start_at_gte=${startDate.format("YYYY-MM-DDTHH:mm:ssZ").replace('+', '%2B')}&start_at_lte=${endDate.format("YYYY-MM-DDTHH:mm:ssZ").replace('+', '%2B')}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Referer': 'https://kronos.ticketack.com/',
+            'X-API-Key': this.state.apiKey
+          }
+        }).then(response => response.json())
+          .then(data => {
+            if(data.flash.error){
+              this.setState({
+                ...this.state,
+                fetchError: data.flash.error
+              })
+            } else {
+              const { tasks } = data
+              const volunteers = new Set()
+              tasks.forEach(task => {
+                if(task.user)
+                  volunteers.add(`${task.user.firstname} ${task.user.lastname}`)
+              })
+  
+              const datas = []
+              const sums = {
                 proj: 0,
                 acc: 0,
                 playlist: 0,
                 projreg: 0
               }
-              tasks.forEach(task => {
-                if(task.user && task.user.firstname === firstname && task.user.lastname === lastname.join(' ')){
-                  if(task.activity.name.fr === 'Accueil/billetterie'){
-                    works.acc++
-                    sums.acc++
-                  }
-                  if(task.activity.name.fr === 'Projectionniste'){
-                    works.proj++
-                    sums.proj++
-                  }
-                  if(task.activity.name.fr === 'Projectionniste-régisseur'){
-                    works.projreg++
-                    sums.projreg++
-                  }
-                  if(task.activity.name.fr === 'Playlister'){
-                    works.playlist += 3
-                    sums.playlist += 3
-                  }
+  
+              volunteers.forEach(volunteer => {
+                const [firstname, ...lastname] = volunteer.split(' ')
+                const works = {
+                  proj: 0,
+                  acc: 0,
+                  playlist: 0,
+                  projreg: 0
                 }
+                tasks.forEach(task => {
+                  if(task.user && task.user.firstname === firstname && task.user.lastname === lastname.join(' ')){
+                    if(task.activity.name.fr === 'Accueil/billetterie'){
+                      works.acc++
+                      sums.acc++
+                    }
+                    if(task.activity.name.fr === 'Projectionniste'){
+                      works.proj++
+                      sums.proj++
+                    }
+                    if(task.activity.name.fr === 'Projectionniste-régisseur'){
+                      works.projreg++
+                      sums.projreg++
+                    }
+                    if(task.activity.name.fr === 'Playlister'){
+                      works.playlist += 3
+                      sums.playlist += 3
+                    }
+                  }
+                })
+  
+                datas.push({
+                  volunteer,
+                  proj: works.proj,
+                  acc: works.acc,
+                  projreg: works.projreg,
+                  playlist: works.playlist
+                })
               })
-
-              datas.push({
-                volunteer,
-                proj: works.proj,
-                acc: works.acc,
-                projreg: works.projreg,
-                playlist: works.playlist
+  
+              // Order
+              const sortedDatas = datas.sort((a, b) => {
+                if(a.volunteer < b.volunteer) return -1
+                if(a.volunteer > b.volunteer) return 1
+                return 0
               })
-            })
-            this.setState({
-              ...this.state,
-              step: 2,
-              datas,
-              sums
-            })
+  
+              this.setState({
+                ...this.state,
+                step: 3,
+                participeData: sortedDatas,
+                sums
+              })
+            }
+          })
+          .finally(() => this.setState({
+            ...this.state,
+            loadingDatas: false
+          }))
+      } else {
+        fetch(`https://api-kronos.ticketack.com/task/list?start_at_gte=${startDate.format("YYYY-MM-DDTHH:mm:ssZ").replace('+', '%2B')}&start_at_lte=${endDate.format("YYYY-MM-DDTHH:mm:ssZ").replace('+', '%2B')}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Referer': 'https://kronos.ticketack.com/',
+            'X-API-Key': this.state.apiKey
           }
-        })
-        .finally(() => this.setState({
-          ...this.state,
-          loadingWorks: false
-        }))
-    )
+        }).then(response => response.json())
+          .then(data => {
+            if(data.flash.error){
+              this.setState({
+                ...this.state,
+                fetchError: data.flash.error
+              })
+            } else {
+              const { tasks } = data
+              const entries = new Map()
+              tasks.forEach(task => {
+                if(task.user == null) return
+                
+                const currentEntry = entries.has(task.start_at) ? entries.get(task.start_at) : {volunteers: []}
+                currentEntry.volunteers.push({
+                  name: task.user.fullname,
+                  work: task.activity.name.fr
+                })
+                entries.set(task.start_at, currentEntry);
+              })
+              
+              this.setState({...this.state, step: 3, logData: entries});
+            }
+          })
+          .finally(() => this.setState({
+            ...this.state,
+            loadingDatas: false
+          }))      
+        }
+    })
   }
 
   convertArrayOfObjectsToCSV(args) {  
@@ -307,9 +359,31 @@ export default class App extends React.Component {
                             onChange={this.handleChangeMonth.bind(this)}
                           />
                         </Form.Group>
-                        <Button variant='primary' onClick={this.fetchTasks.bind(this)} disabled={this.state.loadingWorks}>
+                      </Form>
+                    </Row>
+                  </div>
+                )
+              }
+            </Col>
+            <Col>
+              {
+                this.state.step >= 2 && (
+                  <div>
+                    <Row>
+                      <h3>3. Sélectionner données</h3>
+                    </Row>
+                    <Row>
+                      <Form>
+                      <Form.Group controlId="select-datas">
+                          <Form.Label>Select datas to fetch</Form.Label>
+                          <Form.Control as="select" onChange={this.datasToFetchChange.bind(this)}>
+                            <option value="participe">Participations</option>
+                            <option value="log">Journal</option>
+                          </Form.Control>
+                        </Form.Group>
+                        <Button variant='primary' onClick={this.fetchDatas.bind(this)} disabled={this.state.loadingDatas}>
                           {
-                            this.state.loadingWorks ? (<FontAwesomeIcon icon={faSpinner} spin />) : ('Récupérer les bénévoles')
+                            this.state.loadingWorks ? (<FontAwesomeIcon icon={faSpinner} spin />) : ('Valider')
                           }
                         </Button>
                       </Form>
@@ -320,48 +394,73 @@ export default class App extends React.Component {
             </Col>
           </Row>
           {
-            this.state.step >= 2 && (
+            this.state.step >= 3 && (
               <div className='mt-4'>
                 <Row>
-                  <h3>3. Affichage des données <Button onClick={() => this.downloadCSV(this.state.datas)}>Exporter en CSV</Button></h3>
+                  <h3>4. Affichage des données <Button onClick={() => this.downloadCSV(this.state.participeData)}>Exporter en CSV</Button></h3>
                 </Row>
                 <Row>
-                  <Table striped bordered hover>
-                    <thead>
-                      <tr>
-                        <th>Bénévole</th>
-                        <th>Accueil/billetterie</th>
-                        <th>Projection</th>
-                        <th>Projection - Régie</th>
-                        <th>Playlist</th>
-                        <th>Billets</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {
-                        this.state.datas.length > 0 && this.state.datas.map(data => (
-                          <tr>
-                            <td>{data.volunteer}</td>
-                            <td>{data.acc > 0 ? data.acc : '-'}</td>
-                            <td>{data.proj > 0 ? data.proj : '-'}</td>
-                            <td>{data.projreg > 0 ? data.projreg : '-'}</td>
-                            <td>{data.playlist > 0 ? data.playlist : '-'}</td>
-                            <td>{data.acc + data.proj + data.projreg + data.playlist}</td>
-                          </tr>
-                        ))
-                      }
-                    </tbody>
-                    <tfoot>
-                      <tr>
-                        <td><b>Totaux</b></td>
-                        <td>{this.state.sums.acc}</td>
-                        <td>{this.state.sums.proj}</td>
-                        <td>{this.state.sums.projreg}</td>
-                        <td>{this.state.sums.playlist}</td>
-                        <td>{this.state.sums.acc + this.state.sums.proj + this.state.sums.projreg + this.state.sums.playlist}</td>
-                      </tr>
-                    </tfoot>
-                  </Table>
+                  { this.state.datasToFetch === 'participe' ? (
+                    <Table striped bordered hover>
+                      <thead>
+                        <tr>
+                          <th>Bénévole</th>
+                          <th>Accueil/billetterie</th>
+                          <th>Projection</th>
+                          <th>Projection - Régie</th>
+                          <th>Playlist</th>
+                          <th>Billets</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          this.state.participeData.length > 0 && this.state.participeData.map(data => (
+                            <tr key={data.volunteer}>
+                              <td>{data.volunteer}</td>
+                              <td>{data.acc > 0 ? data.acc : '-'}</td>
+                              <td>{data.proj > 0 ? data.proj : '-'}</td>
+                              <td>{data.projreg > 0 ? data.projreg : '-'}</td>
+                              <td>{data.playlist > 0 ? data.playlist : '-'}</td>
+                              <td>{data.acc + data.proj + data.projreg + data.playlist}</td>
+                            </tr>
+                          ))
+                        }
+                      </tbody>
+                      <tfoot>
+                        <tr>
+                          <td><b>Totaux</b></td>
+                          <td>{this.state.sums.acc}</td>
+                          <td>{this.state.sums.proj}</td>
+                          <td>{this.state.sums.projreg}</td>
+                          <td>{this.state.sums.playlist}</td>
+                          <td>{this.state.sums.acc + this.state.sums.proj + this.state.sums.projreg + this.state.sums.playlist}</td>
+                        </tr>
+                      </tfoot>
+                    </Table>
+                  ) : (
+                    <Table striped bordered hover>
+                      <thead>
+                        <tr>
+                          <th>Séance</th>
+                          <th>Bénévole</th>
+                          <th>Poste</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {
+                          Array.from(this.state.logData).length > 0 && Array.from(this.state.logData, ([date, {volunteers}]) => 
+                            (Array.isArray(volunteers) ? volunteers : [volunteers]).map((volunteer, index) => (
+                              <tr key={date + index}>
+                                <td>{index === 0 ? date : '"'}</td>
+                                <td>{volunteer.name}</td>
+                                <td>{volunteer.work}</td>
+                              </tr>
+                            ))
+                          )
+                        }
+                      </tbody>
+                    </Table>
+                  )}
                 </Row>
               </div>
             )
